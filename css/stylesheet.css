@@ -62,11 +62,14 @@ body{
     justify-content: center;
 }
 
- .gameboard td{
+.gameboard td{
     width: 80px;
     height: 80px;
     border-width: 2px;
     border-color: black;
+    border-radius: 5px;
+    text-align: center;
+    font-size: 35px;
 }
 
 .gameboard{
@@ -87,6 +90,11 @@ body{
 
 .gameboard td[data-column="3"]{
     border-left: solid;
+}
+
+.hover:hover{
+    background-color: #d8c5a3;
+    cursor: pointer;
 }
 
 
