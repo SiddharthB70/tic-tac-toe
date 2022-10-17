@@ -6,8 +6,46 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tic-Tac-Toe</title>
     <link rel="stylesheet" href="css/stylesheet.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono&display=swap" rel="stylesheet"> 
 </head>
 <body>
-    
+    <div class="main-container">
+        <h3 class="header">Tic-Tac-Toe</h3>
+        <div class="player-select-layer">
+            <div class="player-select" id="select1">Player 1</div>
+            <div class="player-select" id="select2">Player 2</div>
+        </div>
+        <div class="name-layer">
+            <div class="name-input" id="name1">Name 1</div>
+            <div class="name-input" id="name2">Name 2</div>
+        </div>
+        <div class="symbol-layer">
+            <div class="symbol" id="symbol1">X</div>
+            <div class="swap-symbol"></div>
+            <div class="symbol" id="symbol2">O</div>
+        </div>
+        <div class="message-layer"></div>
+        <div class="board-layer">
+            <table class="gameboard">
+                <tr data-row="1">
+                    <td data-column="1"></td>
+                    <td data-column="2"></td>
+                    <td data-column="3"></td>
+                </tr>
+                <tr data-row="2">
+                    <td data-column="1"></td>
+                    <td data-column="2"></td>
+                    <td data-column="3"></td>
+                </tr>
+                <tr data-row="3">
+                    <td data-column="1"></td>
+                    <td data-column="2"></td>
+                    <td data-column="3"></td>
+                </tr>
+            </table>
+        </div>
+    </div>
 </body>
 </html>

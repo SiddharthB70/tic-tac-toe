@@ -1,0 +1,92 @@
+*{
+    margin: 0;
+    padding: 0;
+}
+
+body{
+    height: 100vh;
+    width: 100vw;
+    background: #f8f0e2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "IBM Plex Mono";
+}
+
+.main-container{
+    width: 600px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.board-layer{
+    height: 400px;
+}
+
+.main-container>*{
+    flex: 0 0 auto;
+}
+
+.main-container>:not(.board-layer){
+    height: 60px;
+}
+
+.header{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    margin-bottom: 20px;
+}
+
+.player-select-layer,
+.name-layer,
+.symbol-layer{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 30px;
+}
+
+.player-select-layer>*,
+.name-layer>*,
+.symbol-layer>*{
+    width: 150px;
+    text-align: center;
+}
+
+.board-layer{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+ .gameboard td{
+    width: 80px;
+    height: 80px;
+    border-width: 2px;
+    border-color: black;
+}
+
+.gameboard{
+    border-collapse: collapse;
+}
+
+.gameboard tr[data-row="1"]>td{
+    border-bottom: solid;    
+}
+
+.gameboard tr[data-row="3"]>td{
+    border-top: solid;
+}
+
+.gameboard td[data-column="1"]{
+    border-right: solid;
+}
+
+.gameboard td[data-column="3"]{
+    border-left: solid;
+}
+
+
