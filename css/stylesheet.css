@@ -76,19 +76,19 @@ body{
     border-collapse: collapse;
 }
 
-.gameboard tr[data-row="1"]>td{
+.gameboard tr[data-row="0"]>td{
     border-bottom: solid;    
 }
 
-.gameboard tr[data-row="3"]>td{
+.gameboard tr[data-row="2"]>td{
     border-top: solid;
 }
 
-.gameboard td[data-column="1"]{
+.gameboard td[data-column="0"]{
     border-right: solid;
 }
 
-.gameboard td[data-column="3"]{
+.gameboard td[data-column="2"]{
     border-left: solid;
 }
 
