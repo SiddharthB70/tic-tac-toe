@@ -1,3 +1,4 @@
+const x = 0, y = 1; //Used to access the x and y values of a cell in the board
 /*
 gameBoard is a module object that represents tic-tac-toe in logical manner using a 2D array.
 It consists other details related to the board, such as the current player and the player's symbol.
@@ -10,10 +11,9 @@ const gameBoard = (function(){
                     ["","",""]];
     
     let presentPlayer,presentSymbol;
-    const xCoordinate = 0, yCoordinate = 1;
 
     function updateGameBoard(cell){//Here cell refers to cell coordinate
-        board[cell[xCoordinate]][cell[yCoordinate]] = presentSymbol;
+        board[cell[x]][cell[y]] = presentSymbol;
     }
 
     function getPresentSymbol(){
@@ -30,7 +30,7 @@ const gameBoard = (function(){
     }
 
     function getCellValue(cellCoordinate){
-        return board[cellCoordinate[xCoordinate]][cellCoordinate[yCoordinate]];
+        return board[cellCoordinate[x]][cellCoordinate[y]];
     }
 
     return {updateGameBoard,getPresentSymbol,getPresentPlayer,updatePresentPlayer,getCellValue};
@@ -107,29 +107,47 @@ const player = (playerName,playerSymbol)=>{
     return {setPlayerDetails,getPlayerName,getPlayerSymbol,updatePlayerName,updatePlayerSymbol};
 };
 
-
 const flowControl = (function(){
-    const xCoordinate  = 0, yCoordinate = 1;
-
+    let win;
+    
     function moveControl(cellCoordinate){
-        let win = checkWin(cellCoordinate);
+        win = gameWin.checkWin(cellCoordinate);
         if(!win)
             switchPlayer();
     }
 
+
+    function switchPlayer(){
+        presentPlayer = gameBoard.getPresentPlayer();
+        if(presentPlayer === player1)
+            gameBoard.updatePresentPlayer(player2,player2.getPlayerSymbol());
+        
+        else    
+            gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
+    }
+
+    return {moveControl};
+})();
+
+const player1 = player("Player 1","X");
+const player2 = player("Player 2","O");
+
+const gameWin = (function(){
+    let symbol;
     function checkWin(cellCoordinate){
-        const presentSymbol = gameBoard.getPresentSymbol();
-        let cWin = checkColumn(cellCoordinate[yCoordinate],presentSymbol);
-        let rWin = checkRow(cellCoordinate[xCoordinate],presentSymbol);
+        symbol = gameBoard.getPresentSymbol();
+        let cWin = checkColumn(cellCoordinate[y]);
+        let rWin = checkRow(cellCoordinate[x]);
         let dWin;
-        if(cellCoordinate[xCoordinate] == cellCoordinate[yCoordinate])
-            dWin = checkLeftDiagonal(presentSymbol);
-        if(Math.abs(cellCoordinate[xCoordinate]-cellCoordinate[yCoordinate]) == 2)
-            dWin = checkRightDiagonal(presentSymbol)
+        if(cellCoordinate[x] == cellCoordinate[y])
+            dWin = checkLeftDiagonal();
+        if(Math.abs(cellCoordinate[x]-cellCoordinate[y]) == 2)
+            dWin = checkRightDiagonal();
         return cWin||rWin||dWin;
     }
 
-    function checkColumn(column,symbol){
+
+    function checkColumn(column){
         for(let x=0;x<=2;x++){
             if(gameBoard.getCellValue([x,Number(column)])!=symbol)
                 return false;
@@ -137,7 +155,7 @@ const flowControl = (function(){
         return true;
     }
 
-    function checkRow(row,symbol){
+    function checkRow(row){
         for(let y=0;y<=2;y++){
             if(gameBoard.getCellValue([Number(row),y])!=symbol)
                 return false;
@@ -165,20 +183,9 @@ const flowControl = (function(){
         return true;
     }
 
-    function switchPlayer(){
-        presentPlayer = gameBoard.getPresentPlayer();
-        if(presentPlayer === player1)
-            gameBoard.updatePresentPlayer(player2,player2.getPlayerSymbol());
-        
-        else    
-            gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
-    }
-
-    return {moveControl};
+    return {checkWin};
 })();
 
-const player1 = player("Player 1","X");
-const player2 = player("Player 2","O");
 
 window.onload = () =>{
     displayController.cellClick();
