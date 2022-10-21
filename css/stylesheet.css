@@ -70,6 +70,7 @@ body{
     border-radius: 5px;
     text-align: center;
     font-size: 35px;
+    transition: all 0.2s;
 }
 
 .gameboard{
@@ -92,9 +93,52 @@ body{
     border-left: solid;
 }
 
-.hover:hover{
+td.hover{
+    transition: none 0s;
+}
+
+td.hover:hover{
     background-color: #d8c5a3;
     cursor: pointer;
 }
 
+.win{
+    background-color: #d8c5a3;
+    position: relative;
+    z-index: -1;
+}
 
+.line-through{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+
+}
+
+.line-through::after{
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 3px;
+    background-color: black;
+    top: 50%;
+    transform: translateY(-50%);
+    left: 0;
+}
+
+.column{
+    transform: rotate(90deg);
+}
+
+.ldiagonal{
+    transform: rotate(45deg);
+    left: -15px;
+    width: 140%;
+}
+
+.rdiagonal{
+    transform: rotate(-45deg);
+    left: -15px;
+    width: 140%;
+}

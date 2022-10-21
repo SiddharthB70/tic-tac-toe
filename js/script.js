@@ -33,7 +33,16 @@ const gameBoard = (function(){
         return board[cellCoordinate[x]][cellCoordinate[y]];
     }
 
-    return {updateGameBoard,getPresentSymbol,getPresentPlayer,updatePresentPlayer,getCellValue};
+    function updateWinSet(set){
+        winSet = set;
+    }
+
+    return {updateGameBoard,
+            getPresentSymbol,
+            getPresentPlayer,
+            updatePresentPlayer,
+            getCellValue,
+            updateWinSet};
 })();
 
 /*
@@ -74,6 +83,40 @@ const displayController = (function(){
         })
     }
 
+    function displayWin(){
+        blockAllCells();
+        showWinSet();
+    }
+
+    function showWinSet(){
+        const winSet = gameWin.returnWinSet();
+        let cell,k=0;
+        winSet.forEach((cellCoordinate)=>{
+            cell = returnCell(cellCoordinate);
+            setTimeout(showWinCell,100*k,cell);
+            k++;
+        })
+    }
+
+    function showWinCell(cell){
+        const lineThrough = document.createElement("div");
+        lineThrough.classList.add("line-through");
+
+        const winDirection = gameWin.returnWinDirection();
+        if(winDirection == "column")
+            lineThrough.classList.add("column");
+        else if(winDirection == "ldiagonal")
+            lineThrough.classList.add("ldiagonal");
+        else if(winDirection == "rdiagonal")
+            lineThrough.classList.add("rdiagonal");
+        cell.classList.add("win");
+        cell.appendChild(lineThrough);
+    }
+
+    function returnCell(coordinate){
+        return document.querySelector(`tr[data-row="${coordinate[x]}"]> td[data-column="${coordinate[y]}"]`);
+    }
+
     function returnCoordinate(cell){
         let y = cell.getAttribute("data-column");
         const row = cell.closest("tr");
@@ -85,10 +128,130 @@ const displayController = (function(){
         cell.textContent = gameBoard.getPresentSymbol();
     }
 
-    return {cellClick,blockAllCells};
+    return {cellClick,
+            displayWin};
 })();
 
+const flowControl = (function(){
+    let win;
+    
+    function moveControl(cellCoordinate){
+        win = gameWin.checkWin(cellCoordinate);
+        if(!win)
+            switchPlayer();
+        else
+            setGameWin();
+    }
 
+    function switchPlayer(){
+        presentPlayer = gameBoard.getPresentPlayer();
+        if(presentPlayer === player1)
+            gameBoard.updatePresentPlayer(player2,player2.getPlayerSymbol());
+        
+        else    
+            gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
+    }
+
+    function setGameWin(){
+        displayController.displayWin();
+    }
+
+    return {moveControl};
+})();
+
+/*
+gameWin is an object to check if the clicked cell creates a win or not
+*/
+const gameWin = (function(){
+    let symbol,winSet = [],winDirection = "";
+
+    function checkWin(cellCoordinate){
+        symbol = gameBoard.getPresentSymbol();
+        let cWin = checkColumn(cellCoordinate[y]);
+        winDirection = "column";
+        if(!cWin){
+            winDirection = "row";
+            let rWin = checkRow(cellCoordinate[x]);
+            if(!rWin){
+                let dWin;
+                if(cellCoordinate[x] == cellCoordinate[y]){
+                    dWin = checkLeftDiagonal();
+                    winDirection = "ldiagonal";
+                }
+                else if(Math.abs(cellCoordinate[x]-cellCoordinate[y]) == 2){
+                    dWin = checkRightDiagonal();
+                    winDirection = "rdiagonal";
+                }
+                if(!dWin){
+                    winDirection = "";
+                    return false; 
+                }
+            } 
+        }
+        return true;
+    }
+
+
+    function checkColumn(column){
+        for(let x=0;x<=2;x++){
+            if(gameBoard.getCellValue([x,Number(column)])!=symbol){
+                winSet = [];
+                return false;
+            }
+            winSet.push([x,Number(column)]);
+        }
+        return true;
+    }
+
+    function checkRow(row){
+        for(let y=0;y<=2;y++){
+            if(gameBoard.getCellValue([Number(row),y])!=symbol){
+                winSet = [];
+                return false;
+            }
+            winSet.push([Number(row),y]);
+        }
+        return true;
+    }
+
+    function checkLeftDiagonal(){
+        let x = 0,y = 0;
+        while(x<=2 && y<=2){
+            if(gameBoard.getCellValue([x,y])!=symbol){
+                winSet = [];
+                return false;
+            }
+            winSet.push([x,y]);
+            x++,y++;
+        }
+        return true;
+    }
+
+    function checkRightDiagonal(){
+        let x = 0, y = 2
+        while(x<=2 && y>=0){
+            if(gameBoard.getCellValue([x,y])!=symbol){
+                winSet = [];
+                return false;
+            }
+            winSet.push([x,y]);
+            x++,y--;
+        }
+        return true;
+    }
+    
+    function returnWinSet(){
+        return winSet;
+    }
+
+    function returnWinDirection(){
+        return winDirection;
+    }
+
+    return {checkWin,
+            returnWinSet,
+            returnWinDirection};
+})();
 
 const player = (playerName,playerSymbol)=>{
 
@@ -113,95 +276,16 @@ const player = (playerName,playerSymbol)=>{
         playerSymbol = newSymbol;
     }
 
-    return {setPlayerDetails,getPlayerName,getPlayerSymbol,updatePlayerName,updatePlayerSymbol};
+    return {setPlayerDetails,
+            getPlayerName,
+            getPlayerSymbol,
+            updatePlayerName,
+            updatePlayerSymbol};
 };
 
-const flowControl = (function(){
-    let win;
-    
-    function moveControl(cellCoordinate){
-        win = gameWin.checkWin(cellCoordinate);
-        if(!win)
-            switchPlayer();
-        else
-            displayWin();
-    }
-
-
-    function switchPlayer(){
-        presentPlayer = gameBoard.getPresentPlayer();
-        if(presentPlayer === player1)
-            gameBoard.updatePresentPlayer(player2,player2.getPlayerSymbol());
-        
-        else    
-            gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
-    }
-
-    function displayWin(){
-        displayController.blockAllCells();
-    }
-
-    return {moveControl};
-})();
 
 const player1 = player("Player 1","X");
 const player2 = player("Player 2","O");
-
-const gameWin = (function(){
-    let symbol;
-    function checkWin(cellCoordinate){
-        symbol = gameBoard.getPresentSymbol();
-        let cWin = checkColumn(cellCoordinate[y]);
-        let rWin = checkRow(cellCoordinate[x]);
-        let dWin;
-        if(cellCoordinate[x] == cellCoordinate[y])
-            dWin = checkLeftDiagonal();
-        else if(Math.abs(cellCoordinate[x]-cellCoordinate[y]) == 2)
-            dWin = checkRightDiagonal();
-        else
-            dWin = false;
-        return cWin||rWin||dWin;
-    }
-
-
-    function checkColumn(column){
-        for(let x=0;x<=2;x++){
-            if(gameBoard.getCellValue([x,Number(column)])!=symbol)
-                return false;
-        }
-        return true;
-    }
-
-    function checkRow(row){
-        for(let y=0;y<=2;y++){
-            if(gameBoard.getCellValue([Number(row),y])!=symbol)
-                return false;
-        }
-        return true;
-    }
-
-    function checkLeftDiagonal(){
-        let x = 0,y = 0;
-        while(x<=2 && y<=2){
-            if(gameBoard.getCellValue([x,y])!=symbol)
-                return false;
-            x++,y++;
-        }
-        return true;
-    }
-
-    function checkRightDiagonal(){
-        let x = 0, y = 2
-        while(x<=2 && y>=0){
-            if(gameBoard.getCellValue([x,y])!=symbol)
-                return false;
-            x++,y--;
-        }
-        return true;
-    }
-
-    return {checkWin};
-})();
 
 
 window.onload = () =>{
