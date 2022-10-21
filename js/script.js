@@ -55,14 +55,23 @@ const displayController = (function(){
         const cellCoordinate = returnCoordinate(cell);
 
         //To update Displayed cell
-        cell.removeEventListener("click",selectCell);
-        cell.classList.remove("hover");
+        blockCell(cell);
         updateDisplay(cell);
 
         //To update Array cell
         gameBoard.updateGameBoard(cellCoordinate);
-
         flowControl.moveControl(cellCoordinate);
+    }
+    
+    function blockCell(cell){
+        cell.removeEventListener("click",selectCell);
+        cell.classList.remove("hover");
+    }
+
+    function blockAllCells(){
+        boardCells.forEach((cell)=>{
+            blockCell(cell);
+        })
     }
 
     function returnCoordinate(cell){
@@ -76,7 +85,7 @@ const displayController = (function(){
         cell.textContent = gameBoard.getPresentSymbol();
     }
 
-    return {cellClick};
+    return {cellClick,blockAllCells};
 })();
 
 
@@ -114,6 +123,8 @@ const flowControl = (function(){
         win = gameWin.checkWin(cellCoordinate);
         if(!win)
             switchPlayer();
+        else
+            displayWin();
     }
 
 
@@ -124,6 +135,10 @@ const flowControl = (function(){
         
         else    
             gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
+    }
+
+    function displayWin(){
+        displayController.blockAllCells();
     }
 
     return {moveControl};
@@ -141,8 +156,10 @@ const gameWin = (function(){
         let dWin;
         if(cellCoordinate[x] == cellCoordinate[y])
             dWin = checkLeftDiagonal();
-        if(Math.abs(cellCoordinate[x]-cellCoordinate[y]) == 2)
+        else if(Math.abs(cellCoordinate[x]-cellCoordinate[y]) == 2)
             dWin = checkRightDiagonal();
+        else
+            dWin = false;
         return cWin||rWin||dWin;
     }
 
@@ -163,7 +180,7 @@ const gameWin = (function(){
         return true;
     }
 
-    function checkLeftDiagonal(symbol){
+    function checkLeftDiagonal(){
         let x = 0,y = 0;
         while(x<=2 && y<=2){
             if(gameBoard.getCellValue([x,y])!=symbol)
@@ -173,7 +190,7 @@ const gameWin = (function(){
         return true;
     }
 
-    function checkRightDiagonal(symbol){
+    function checkRightDiagonal(){
         let x = 0, y = 2
         while(x<=2 && y>=0){
             if(gameBoard.getCellValue([x,y])!=symbol)
