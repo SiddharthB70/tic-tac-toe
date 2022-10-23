@@ -56,6 +56,20 @@ body{
     text-align: center;
 }
 
+.name-field{
+    appearance: none;
+    height: 40px;
+    font-size: 25px;
+    font-family: inherit;
+    border: 5px solid #d8c5a3;
+    background: inherit;
+    outline: none;
+}
+
+.name-field:hover,.name-field:focus{
+    background: #d8c5a3;
+}
+
 .board-layer{
     display: flex;
     align-items: center;

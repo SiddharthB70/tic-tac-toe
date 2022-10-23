@@ -1,4 +1,5 @@
 const x = 0, y = 1; //Used to access the x and y values of a cell in the board
+
 /*
 gameBoard is a module object that represents tic-tac-toe in logical manner using a 2D array.
 It consists other details related to the board, such as the current player and the player's symbol.
@@ -253,7 +254,8 @@ const gameWin = (function(){
             returnWinDirection};
 })();
 
-const player = (playerName,playerSymbol)=>{
+const player = ()=>{
+    let playerName,playerSymbol,playerWins = 0;
 
     function setPlayerDetails(name,symbol){
         playerName = name;
@@ -275,20 +277,52 @@ const player = (playerName,playerSymbol)=>{
     function updatePlayerSymbol(newSymbol){
         playerSymbol = newSymbol;
     }
+    
+    function increaseWin(){
+        playerWins++;
+    }
+
+    function returnWins(){
+        return playerWins;
+    }
 
     return {setPlayerDetails,
             getPlayerName,
             getPlayerSymbol,
             updatePlayerName,
-            updatePlayerSymbol};
+            updatePlayerSymbol,
+            increaseWin,
+            returnWins    
+            };
 };
 
+const gamePlayers = (function(){
+    const nameForm = document.querySelector("form");
+    const player1Name = document.getElementById("name-field1");
+    const player2Name = document.getElementById("name-field2");
+    const player1Symbol = document.getElementById("symbol1");
+    const player2Symbol = document.getElementById("symbol2");
 
-const player1 = player("Player 1","X");
-const player2 = player("Player 2","O");
+    function resetGamePlayers(){
+        nameForm.reset();
+    }
+
+    function setGamePlayers(){
+        player1.setPlayerDetails(player1Name.value,player1Symbol.textContent)
+        player2.setPlayerDetails(player2Name.value,player2Symbol.textContent)
+    }
+
+    return {resetGamePlayers,setGamePlayers};
+})();
+
+
+const player1 = player();
+const player2 = player();
 
 
 window.onload = () =>{
+    gamePlayers.resetGamePlayers();
+    gamePlayers.setGamePlayers();
     displayController.cellClick();
     gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
 };
