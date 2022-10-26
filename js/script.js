@@ -157,7 +157,8 @@ const flowControl = (function(){
         displayController.displayWin();
     }
 
-    return {moveControl};
+    return {moveControl,
+            switchPlayer};
 })();
 
 /*
@@ -296,7 +297,7 @@ const player = ()=>{
             };
 };
 
-const gamePlayers = (function(){
+const gamePlayerDetails = (function(){
     const nameForm = document.querySelector("form");
     const player1Name = document.getElementById("name-field1");
     const player2Name = document.getElementById("name-field2");
@@ -308,11 +309,13 @@ const gamePlayers = (function(){
 
     function resetGamePlayers(){
         nameForm.reset();
+        setGamePlayers();
+        displaySymbols();
     }
 
     function setGamePlayers(){
-        player1.setPlayerDetails("Player 1",player1Symbol.textContent);
-        player2.setPlayerDetails(player2Name.value,player2Symbol.textContent);
+        player1.setPlayerDetails("Player 1","X");
+        player2.setPlayerDetails("Player 2","O");
     }
 
     function changeName(e){
@@ -329,12 +332,19 @@ const gamePlayers = (function(){
     }
     
     function swapSymbols(){
-        let temp = player1Symbol.textContent;
-        player1Symbol.textContent = player2Symbol.textContent;
-        player2Symbol.textContent = temp;
+        let temp = player1.getPlayerSymbol();
+        player1.updatePlayerSymbol(player2.getPlayerSymbol());
+        player2.updatePlayerSymbol(temp);
+    }
+
+    function displaySymbols(){
+        player1Symbol.textContent = player1.getPlayerSymbol();
+        player2Symbol.textContent = player2.getPlayerSymbol();
     }
     
-    return {resetGamePlayers,setGamePlayers,swapSymbols};
+    return {resetGamePlayers,
+            swapSymbols,
+            displaySymbols};
 })();
 
 const swapButton = (function(){
@@ -346,9 +356,10 @@ const swapButton = (function(){
         setTimeout(function(){
             sButton.classList.remove("clicked");
         },200)
-        gamePlayers.swapSymbols();
+        gamePlayerDetails.swapSymbols();
+        gamePlayerDetails.displaySymbols();
+        flowControl.switchPlayer();
     }
-
 })();
 
 const player1 = player();
@@ -356,8 +367,7 @@ const player2 = player();
 
 
 window.onload = () =>{
-    gamePlayers.resetGamePlayers();
-    gamePlayers.setGamePlayers();
+    gamePlayerDetails.resetGamePlayers();
     displayController.cellClick();
     gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
 };
