@@ -70,6 +70,26 @@ body{
     background: #d8c5a3;
 }
 
+.symbol-layer>#swap-button{
+    height: 90%;
+    width: 50px;
+    background: #d8c5a3;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    transform: scale(1);
+    transition: transform 0.2s;
+}
+
+.symbol-layer>#swap-button:hover{
+    transform: scale(1.2);
+}
+
+.symbol-layer>#swap-button.clicked{
+    transform: scale(0.7);
+}
+
+
 .board-layer{
     display: flex;
     align-items: center;

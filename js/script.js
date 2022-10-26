@@ -303,18 +303,53 @@ const gamePlayers = (function(){
     const player1Symbol = document.getElementById("symbol1");
     const player2Symbol = document.getElementById("symbol2");
 
+    player1Name.addEventListener("keyup",changeName);
+    player2Name.addEventListener("keyup",changeName);
+
     function resetGamePlayers(){
         nameForm.reset();
     }
 
     function setGamePlayers(){
-        player1.setPlayerDetails(player1Name.value,player1Symbol.textContent)
-        player2.setPlayerDetails(player2Name.value,player2Symbol.textContent)
+        player1.setPlayerDetails("Player 1",player1Symbol.textContent);
+        player2.setPlayerDetails(player2Name.value,player2Symbol.textContent);
     }
 
-    return {resetGamePlayers,setGamePlayers};
+    function changeName(e){
+        if(e.key!="Enter")
+            return;
+        if(e.target==player1Name){
+            player1.updatePlayerName(player1Name.value);
+            player1Name.blur();
+        }
+            
+        else
+            player2.updatePlayerName(player2Name.value);
+            player2Name.blur();
+    }
+    
+    function swapSymbols(){
+        let temp = player1Symbol.textContent;
+        player1Symbol.textContent = player2Symbol.textContent;
+        player2Symbol.textContent = temp;
+    }
+    
+    return {resetGamePlayers,setGamePlayers,swapSymbols};
 })();
 
+const swapButton = (function(){
+    const sButton = document.getElementById("swap-button");
+    sButton.addEventListener("click",sButtonFunction);
+
+    function sButtonFunction(){
+        sButton.classList.add("clicked");
+        setTimeout(function(){
+            sButton.classList.remove("clicked");
+        },200)
+        gamePlayers.swapSymbols();
+    }
+
+})();
 
 const player1 = player();
 const player2 = player();
