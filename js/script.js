@@ -304,9 +304,6 @@ const gamePlayerDetails = (function(){
     const player1Symbol = document.getElementById("symbol1");
     const player2Symbol = document.getElementById("symbol2");
 
-    player1Name.addEventListener("keyup",changeName);
-    player2Name.addEventListener("keyup",changeName);
-
     function resetGamePlayers(){
         nameForm.reset();
         setGamePlayers();
@@ -318,18 +315,24 @@ const gamePlayerDetails = (function(){
         player2.setPlayerDetails("Player 2","O");
     }
 
-    function changeName(e){
-        if(e.key!="Enter")
-            return;
-        if(e.target==player1Name){
-            player1.updatePlayerName(player1Name.value);
-            player1Name.blur();
-        }
-            
-        else
-            player2.updatePlayerName(player2Name.value);
-            player2Name.blur();
+    player1Name.addEventListener("keyup",checkEnter);
+    player2Name.addEventListener("keyup",checkEnter);
+
+    function checkEnter(e){
+        if(e.key == "Enter")
+            (e.target).blur();
     }
+
+    // function changeName(player){
+    //     if(player==player1Name){
+    //         player1.updatePlayerName(player1Name.value);
+    //         player1Name.blur();
+    //     }
+            
+    //     else
+    //         player2.updatePlayerName(player2Name.value);
+    //         player2Name.blur();
+    // }
     
     function swapSymbols(){
         let temp = player1.getPlayerSymbol();
