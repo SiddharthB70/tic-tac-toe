@@ -177,6 +177,7 @@ const player = ()=>{
 
     function increaseWin(){
         playerWins++;
+        winCounter.displayWin(this);
     }
 
     function returnWins(){
@@ -294,11 +295,18 @@ const flowControl = (function(){
     function moveControl(cellCoordinate){
         win = gameWin.checkWin(cellCoordinate);
         boardFilled = gameBoard.boardFilled();
-        if(win)
+        if(win){
             setGameWin();    
+            messageControl.winMessage();
+            gameBoard.getPresentPlayer().increaseWin();
+            return;
+        }
         else if(!win && !boardFilled){
             switchPlayer();
             messageControl.playerMessage(gameBoard.getPresentPlayer());
+        }
+        else{
+            messageControl.tie();
         }
     }
 
@@ -414,7 +422,8 @@ const swapSymbols = (function(){
         swapButton.disabled = false;
     }
 
-    return {lock};
+    return {lock,
+            unlock};
 })();
 
 const winCounter = (function(){
@@ -435,7 +444,8 @@ const winCounter = (function(){
             p2Win.textContent = "Wins: "+player2.returnWins();
     }
 
-    return {initialize};
+    return {initialize,
+            displayWin};
 })();
 
 const start = (function(){
@@ -444,15 +454,27 @@ const start = (function(){
     startButton.addEventListener("click",startButtonFunctionality);
 
     function startButtonFunctionality(){
-        playerNameFields.setPlayerDetails();
+        startButton.removeEventListener("click",startButtonFunctionality);
+        start.lock();
         playerNameFields.lock();
         swapSymbols.lock();
         displayController.unlock();
-        startButton.removeEventListener("click",startButtonFunctionality);
-        startButton.disabled = true;
+
+        playerNameFields.setPlayerDetails();
         messageControl.removeDefaultMessage();
         messageControl.playerMessage(gameBoard.getPresentPlayer());
     }
+
+    function lock(){
+        startButton.disabled = true;
+    }
+
+    function unlock(){
+        startButton.disabled = false;
+    }
+    
+    return {lock,
+            unlock};
 })();
 
 const messageControl = (function(){
@@ -477,12 +499,22 @@ const messageControl = (function(){
     }
 
     function playerMessage(player){
-        messagePanel.textContent = "Present Player: " + player.getPlayerName();
+        messagePanel.textContent = "Present Player: " + player.getPlayerName() + " - " + player.getPlayerSymbol();
+    }
+
+    function winMessage(){
+        messagePanel.textContent = gameBoard.getPresentPlayer().getPlayerName() + " Wins!";
+    }
+
+    function tie(){
+        messagePanel.textContent = "It's a tie!";
     }
     
     return {defaultMessage,
             removeDefaultMessage,
-            playerMessage};
+            playerMessage,
+            winMessage,
+            tie};
 
 })();
 
