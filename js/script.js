@@ -11,10 +11,11 @@ const gameBoard = (function(){
                     ["","",""],
                     ["","",""]];
     
-    let presentPlayer,presentSymbol;
+    let presentPlayer,presentSymbol,cellsFilled = 0;
 
     function updateGameBoard(cell){//Here cell refers to cell coordinate
         board[cell[x]][cell[y]] = presentSymbol;
+        cellsFilled++;
     }
 
     function getPresentSymbol(){
@@ -37,13 +38,21 @@ const gameBoard = (function(){
     function updateWinSet(set){
         winSet = set;
     }
+    
+    function boardFilled(){
+        if(cellsFilled!=9)
+            return false;
+        else
+            return true;
+    }
 
     return {updateGameBoard,
             getPresentSymbol,
             getPresentPlayer,
             updatePresentPlayer,
             getCellValue,
-            updateWinSet};
+            updateWinSet,
+            boardFilled};
 })();
 
 /*
@@ -54,9 +63,10 @@ cell clicked and present player.
 const displayController = (function(){
     const boardCells = document.querySelectorAll(".gameboard td"); 
 
-    function cellClick(){
+    function unlock(){
         boardCells.forEach((cell)=>{
             cell.addEventListener("click",selectCell);
+            cell.classList.add("hover");
         })
     }
 
@@ -129,8 +139,13 @@ const displayController = (function(){
         cell.textContent = gameBoard.getPresentSymbol();
     }
 
-    return {cellClick,
-            displayWin};
+    function lock(){
+        blockAllCells();
+    }
+
+    return {unlock,
+            displayWin,
+            lock};
 })();
 
 const player = ()=>{
@@ -212,7 +227,6 @@ const gameWin = (function(){
         return true;
     }
 
-
     function checkColumn(column){
         for(let x=0;x<=2;x++){
             if(gameBoard.getCellValue([x,Number(column)])!=symbol){
@@ -275,14 +289,17 @@ const gameWin = (function(){
 })();
 
 const flowControl = (function(){
-    let win;
+    let win,boardFilled;
     
     function moveControl(cellCoordinate){
         win = gameWin.checkWin(cellCoordinate);
-        if(!win)
+        boardFilled = gameBoard.boardFilled();
+        if(win)
+            setGameWin();    
+        else if(!win && !boardFilled){
             switchPlayer();
-        else
-            setGameWin();
+            messageControl.playerMessage(gameBoard.getPresentPlayer());
+        }
     }
 
     function switchPlayer(){
@@ -314,6 +331,26 @@ const playerNameFields = (function(){
         if(e.key == "Enter")
             (e.target).blur();
     }
+
+    function lock(){
+        player1Name.disabled = true;
+        player2Name.disabled = true;
+    }
+
+    function unlock(){
+        player1Name.disabled = false;
+        player2Name.disabled = false;
+    }
+
+    function setPlayerDetails(){
+        player1.updatePlayerName(player1Name.value);
+        player2.updatePlayerName(player2Name.value);
+    }
+
+    return {lock,
+            unlock,
+            setPlayerDetails};
+
 })();
 
 const playerSymbols = (function(){
@@ -336,6 +373,8 @@ const initializePlayers = (function(){
         setGamePlayers();
         playerSymbols.displaySymbols();
         winCounter.initialize();
+        messageControl.defaultMessage();
+        gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
     }
 
     function setGamePlayers(){
@@ -365,7 +404,17 @@ const swapSymbols = (function(){
         let temp = player1.getPlayerSymbol();
         player1.updatePlayerSymbol(player2.getPlayerSymbol());
         player2.updatePlayerSymbol(temp);
-    }    
+    } 
+    
+    function lock(){
+        swapButton.disabled = true;
+    }
+
+    function unlock(){
+        swapButton.disabled = false;
+    }
+
+    return {lock};
 })();
 
 const winCounter = (function(){
@@ -389,13 +438,59 @@ const winCounter = (function(){
     return {initialize};
 })();
 
+const start = (function(){
+    const startButton = document.getElementById("start-button");
+    
+    startButton.addEventListener("click",startButtonFunctionality);
+
+    function startButtonFunctionality(){
+        playerNameFields.setPlayerDetails();
+        playerNameFields.lock();
+        swapSymbols.lock();
+        displayController.unlock();
+        startButton.removeEventListener("click",startButtonFunctionality);
+        startButton.disabled = true;
+        messageControl.removeDefaultMessage();
+        messageControl.playerMessage(gameBoard.getPresentPlayer());
+    }
+})();
+
+const messageControl = (function(){
+    const messagePanel = document.querySelector(".message-layer");
+    let message;
+
+    function defaultMessage(){
+        let k = 1;
+        messagePanel.textContent = "Enter Player Names";
+        message = setInterval(function(){
+            if(k%2 == 0)
+                messagePanel.textContent = "Enter Player Names";
+            else
+                messagePanel.textContent = "Click Start to Begin!";
+            k++
+        },2000);
+    }
+
+    function removeDefaultMessage(){
+        clearInterval(message);
+        messagePanel.textContent = "";
+    }
+
+    function playerMessage(player){
+        messagePanel.textContent = "Present Player: " + player.getPlayerName();
+    }
+    
+    return {defaultMessage,
+            removeDefaultMessage,
+            playerMessage};
+
+})();
+
 const player1 = player();
 const player2 = player();
 
 
 window.onload = () =>{
     initializePlayers.resetGamePlayers();
-    displayController.cellClick();
-    gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
 };
 
