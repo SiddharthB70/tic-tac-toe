@@ -115,6 +115,7 @@ body{
     align-items: center;
     justify-content: center;
     font-family: inherit;
+    cursor: pointer
 }
 
 .button-layer>*:hover{
@@ -208,5 +209,20 @@ td.hover:hover{
     transform: rotate(-45deg);
     left: -15px;
     width: 140%;
+}
+.symbol-layer>#swap-button:disabled{
+    border: solid 5px var(--dark-pale);
+    background-color: inherit;
+}
+
+
+*:disabled{
+    transition: none !important;
+    transform: scale(1) !important;
+    cursor: default !important;
+}
+
+*:disabled:hover{
+    background: initial !important;
 }
 
