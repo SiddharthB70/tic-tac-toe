@@ -156,7 +156,10 @@ const player = ()=>{
     function updatePlayerSymbol(newSymbol){
         playerSymbol = newSymbol;
     }
-    
+    function initializeWin(){
+        playerWins = 0;
+    }
+
     function increaseWin(){
         playerWins++;
     }
@@ -171,7 +174,8 @@ const player = ()=>{
             updatePlayerName,
             updatePlayerSymbol,
             increaseWin,
-            returnWins    
+            returnWins,
+            initializeWin
             };
 };
 
@@ -331,6 +335,7 @@ const initializePlayers = (function(){
         nameForm.reset();
         setGamePlayers();
         playerSymbols.displaySymbols();
+        winCounter.initialize();
     }
 
     function setGamePlayers(){
@@ -361,6 +366,27 @@ const swapSymbols = (function(){
         player1.updatePlayerSymbol(player2.getPlayerSymbol());
         player2.updatePlayerSymbol(temp);
     }    
+})();
+
+const winCounter = (function(){
+    const p1Win = document.getElementById("player1-wins");
+    const p2Win = document.getElementById("player2-wins");
+
+    function initialize(){
+        player1.initializeWin();
+        player2.initializeWin();    
+        displayWin(player1);
+        displayWin(player2);
+    }
+
+    function displayWin(player){
+        if(player == player1)
+            p1Win.textContent = "Wins: "+player1.returnWins();
+        else 
+            p2Win.textContent = "Wins: "+player2.returnWins();
+    }
+
+    return {initialize};
 })();
 
 const player1 = player();
