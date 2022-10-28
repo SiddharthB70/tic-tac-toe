@@ -133,6 +133,12 @@ const displayController = (function(){
         })
     }
 
+    function reset(){
+        boardCells.forEach((cell)=>{
+            unblockCell(cell);
+        })
+    }
+
     function unblockCell(cell){
         cell.addEventListener("click",selectCell);
             cell.classList.add("hover");
@@ -200,7 +206,7 @@ const displayController = (function(){
 
     return {displayWin,
             lock,
-            unlock};
+            reset};
 })();
 
 /*
@@ -349,9 +355,16 @@ const initializePage = (function(){
         nameForm.reset();
         gameBoard.reset();
         gameWin.reset();
+        displayController.reset();
+        msgPanelObject.removeMessage();
 
+        resetButtonObject.lock();
+        startButtonObject.unlock();
+        playerNameFields.unlock();
+        swapButtonObject.unlock();
+        displayController.lock();
+        
         setGamePlayers();
-
         setDefaultValues();
     }
 
@@ -478,7 +491,8 @@ const startButtonObject = (function(){
         startButtonObject.lock();
         playerNameFields.lock();
         swapButtonObject.lock();
-        displayController.unlock();
+        displayController.reset();
+        resetButtonObject.unlock();
 
         gameBoard.reset();
         gameWin.reset();
@@ -505,6 +519,27 @@ const startButtonObject = (function(){
     return {lock,
             unlock,
             newGame};
+})();
+
+const resetButtonObject = (function(){
+    const resetButton = document.getElementById("reset-button");
+
+    resetButton.addEventListener("click",resetGame);
+
+    function unlock(){
+        resetButton.disabled = false;
+    }
+
+    function lock(){
+        resetButton.disabled = true;
+    }
+
+    function resetGame(){
+        initializePage.resetGamePlayers();
+    }
+
+    return {lock,
+            unlock}
 })();
 
 const msgPanelObject = (function(){
