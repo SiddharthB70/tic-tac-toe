@@ -111,7 +111,8 @@ body{
 
 .button-layer>*{
     flex: 0 0 auto;
-    width: 120px;
+    width: max-content;
+    padding: 0px 10px;
     appearance: none;
     border: 5px solid var(--dark-pale);
     background-color: inherit;

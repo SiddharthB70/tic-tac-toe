@@ -1,153 +1,5 @@
 const x = 0, y = 1; //Used to access the x and y values of a cell in the board
 
-/*
-gameBoard is a module object that represents tic-tac-toe in logical manner using a 2D array.
-It consists other details related to the board, such as the current player and the player's symbol.
-It contains methods capable of update the 2D array tic-tac-toe board and return values for the 
-present player and symbol.
-*/
-const gameBoard = (function(){
-    const board =  [["","",""],
-                    ["","",""],
-                    ["","",""]];
-    
-    let presentPlayer,presentSymbol,cellsFilled = 0;
-
-    function updateGameBoard(cell){//Here cell refers to cell coordinate
-        board[cell[x]][cell[y]] = presentSymbol;
-        cellsFilled++;
-    }
-
-    function getPresentSymbol(){
-        return presentSymbol;
-    }
-
-    function getPresentPlayer(){
-        return presentPlayer;
-    }
-
-    function updatePresentPlayer(player,symbol){
-        presentPlayer = player;
-        presentSymbol = symbol;
-    }
-
-    function getCellValue(cellCoordinate){
-        return board[cellCoordinate[x]][cellCoordinate[y]];
-    }
-
-    function updateWinSet(set){
-        winSet = set;
-    }
-    
-    function boardFilled(){
-        if(cellsFilled!=9)
-            return false;
-        else
-            return true;
-    }
-
-    return {updateGameBoard,
-            getPresentSymbol,
-            getPresentPlayer,
-            updatePresentPlayer,
-            getCellValue,
-            updateWinSet,
-            boardFilled};
-})();
-
-/*
-displayController is a module object that controls the tic-tac-toe board displayed to the user
-and any events related with it. It also contains methods to update the displayed board based on 
-cell clicked and present player.
-*/
-const displayController = (function(){
-    const boardCells = document.querySelectorAll(".gameboard td"); 
-
-    function unlock(){
-        boardCells.forEach((cell)=>{
-            cell.addEventListener("click",selectCell);
-            cell.classList.add("hover");
-        })
-    }
-
-    function selectCell(e){
-        const cell = e.target;
-        const cellCoordinate = returnCoordinate(cell);
-
-        //To update Displayed cell
-        blockCell(cell);
-        updateDisplay(cell);
-
-        //To update Array cell
-        gameBoard.updateGameBoard(cellCoordinate);
-        flowControl.moveControl(cellCoordinate);
-    }
-    
-    function blockCell(cell){
-        cell.removeEventListener("click",selectCell);
-        cell.classList.remove("hover");
-    }
-
-    function blockAllCells(){
-        boardCells.forEach((cell)=>{
-            blockCell(cell);
-        })
-    }
-
-    function displayWin(){
-        blockAllCells();
-        showWinSet();
-    }
-
-    function showWinSet(){
-        const winSet = gameWin.returnWinSet();
-        let cell,k=0;
-        winSet.forEach((cellCoordinate)=>{
-            cell = returnCell(cellCoordinate);
-            setTimeout(showWinCell,100*k,cell);
-            k++;
-        })
-    }
-
-    function showWinCell(cell){
-        const lineThrough = document.createElement("div");
-        lineThrough.classList.add("line-through");
-
-        const winDirection = gameWin.returnWinDirection();
-        if(winDirection == "column")
-            lineThrough.classList.add("column");
-        else if(winDirection == "ldiagonal")
-            lineThrough.classList.add("ldiagonal");
-        else if(winDirection == "rdiagonal")
-            lineThrough.classList.add("rdiagonal");
-        cell.classList.add("win");
-        cell.appendChild(lineThrough);
-    }
-
-    function returnCell(coordinate){
-        return document.querySelector(`tr[data-row="${coordinate[x]}"]> td[data-column="${coordinate[y]}"]`);
-    }
-
-    function returnCoordinate(cell){
-        let y = cell.getAttribute("data-column");
-        const row = cell.closest("tr");
-        let x = row.getAttribute("data-row");
-        return [x,y];
-    }
-
-    function updateDisplay(cell){
-        cell.textContent = gameBoard.getPresentSymbol();
-    }
-
-    function lock(){
-        blockAllCells();
-    }
-
-    return {unlock,
-            displayWin,
-            lock};
-})();
-
 const player = ()=>{
     let playerName,playerSymbol,playerWins = 0;
 
@@ -195,6 +47,161 @@ const player = ()=>{
             };
 };
 
+const player1 = player();
+const player2 = player();
+
+/*
+gameBoard is a module object that represents tic-tac-toe in logical manner using a 2D array.
+It consists other details related to the board, such as the current player and the player's symbol.
+It contains methods capable of update the 2D array tic-tac-toe board and return values for the 
+present player and symbol.
+*/
+const gameBoard = (function(){
+    let presentPlayer,presentSymbol,cellsFilled,board;
+
+    function updateGameBoard(cell){//Here cell refers to cell coordinate
+        board[cell[x]][cell[y]] = presentSymbol;
+        cellsFilled++;
+    }
+
+    function getPresentSymbol(){
+        return presentSymbol;
+    }
+
+    function getPresentPlayer(){
+        return presentPlayer;
+    }
+
+    function updatePresentPlayer(player,symbol){
+        presentPlayer = player;
+        presentSymbol = symbol;
+    }
+
+    function getCellValue(cellCoordinate){
+        return board[cellCoordinate[x]][cellCoordinate[y]];
+    }
+    
+    function boardFilled(){
+        if(cellsFilled!=9)
+            return false;
+        else
+            return true;
+    }
+
+    function reset(){
+        board =[["","",""],
+                ["","",""],
+                ["","",""]];
+        if(player1.getPlayerSymbol() == "X")
+            updatePresentPlayer(player1,player1.getPlayerSymbol());
+        else
+            updatePresentPlayer(player2,player2.getPlayerSymbol());
+        cellsFilled = 0;
+    }
+
+    return {updateGameBoard,
+            getPresentSymbol,
+            getPresentPlayer,
+            updatePresentPlayer,
+            getCellValue,
+            boardFilled,
+            reset};
+})();
+
+/*
+displayController is a module object that controls the tic-tac-toe board displayed to the user
+and any events related with it. It also contains methods to update the displayed board based on 
+cell clicked and present player.
+*/
+const displayController = (function(){
+    const boardCells = document.querySelectorAll(".gameboard td"); 
+
+    function lock(){
+        boardCells.forEach((cell)=>{
+            blockCell(cell);
+        })
+    }
+
+    function blockCell(cell){
+        cell.removeEventListener("click",selectCell);
+        cell.classList.remove("hover");
+    }
+
+    function unlock(){
+        boardCells.forEach((cell)=>{
+            unblockCell(cell);
+        })
+    }
+
+    function unblockCell(cell){
+        cell.addEventListener("click",selectCell);
+            cell.classList.add("hover");
+            cell.classList.remove("win");
+            cell.textContent = "";
+    }
+
+    function selectCell(e){
+        const cell = e.target;
+        const cellCoordinate = returnCoordinate(cell);
+
+        //To update Displayed cell
+        blockCell(cell);
+        updateDisplay(cell);
+
+        //To update Array cell
+        gameBoard.updateGameBoard(cellCoordinate);
+        flowControl.moveControl(cellCoordinate);
+    }
+
+    function updateDisplay(cell){
+        cell.textContent = gameBoard.getPresentSymbol();
+    }
+
+    function displayWin(){
+        lock();
+        showWinSet();
+    }
+
+    function showWinSet(){
+        const winSet = gameWin.returnWinSet();
+        let cell,k=0;
+        winSet.forEach((cellCoordinate)=>{
+            cell = returnCell(cellCoordinate);
+            setTimeout(showWinCell,100*k,cell);
+            k++;
+        })
+    }
+
+    function showWinCell(cell){
+        const lineThrough = document.createElement("div");
+        lineThrough.classList.add("line-through");
+
+        const winDirection = gameWin.returnWinDirection();
+        if(winDirection == "column")
+            lineThrough.classList.add("column");
+        else if(winDirection == "ldiagonal")
+            lineThrough.classList.add("ldiagonal");
+        else if(winDirection == "rdiagonal")
+            lineThrough.classList.add("rdiagonal");
+        cell.classList.add("win");
+        cell.appendChild(lineThrough);
+    }
+
+    function returnCell(coordinate){
+        return document.querySelector(`tr[data-row="${coordinate[x]}"]> td[data-column="${coordinate[y]}"]`);
+    }
+
+    function returnCoordinate(cell){
+        let y = cell.getAttribute("data-column");
+        const row = cell.closest("tr");
+        let x = row.getAttribute("data-row");
+        return [x,y];
+    }
+
+    return {displayWin,
+            lock,
+            unlock};
+})();
 
 /*
 gameWin is an object to check if the clicked cell creates a win or not
@@ -284,9 +291,15 @@ const gameWin = (function(){
         return winDirection;
     }
 
+    function reset(){
+        winDirection = "";
+        winSet = [];
+    }
+
     return {checkWin,
             returnWinSet,
-            returnWinDirection};
+            returnWinDirection,
+            reset};
 })();
 
 const flowControl = (function(){
@@ -295,19 +308,21 @@ const flowControl = (function(){
     function moveControl(cellCoordinate){
         win = gameWin.checkWin(cellCoordinate);
         boardFilled = gameBoard.boardFilled();
-        if(win){
-            setGameWin();    
-            messageControl.winMessage();
-            gameBoard.getPresentPlayer().increaseWin();
+        if(!win && !boardFilled){
+            switchPlayer();
+            msgPanelObject.playerMessage(gameBoard.getPresentPlayer());
             return;
         }
-        else if(!win && !boardFilled){
-            switchPlayer();
-            messageControl.playerMessage(gameBoard.getPresentPlayer());
+        else if(win){
+            setGameWin();    
+            msgPanelObject.newGameMessage(msgPanelObject.winMessage());
+            gameBoard.getPresentPlayer().increaseWin();
         }
         else{
-            messageControl.tie();
+            msgPanelObject.newGameMessage(msgPanelObject.tieMessage());
         }
+        startButtonObject.unlock();
+        startButtonObject.newGame();
     }
 
     function switchPlayer(){
@@ -327,6 +342,32 @@ const flowControl = (function(){
             switchPlayer};
 })();
 
+const initializePage = (function(){
+    const nameForm = document.querySelector("form");
+    
+    function resetGamePlayers(){
+        nameForm.reset();
+        gameBoard.reset();
+        gameWin.reset();
+
+        setGamePlayers();
+
+        setDefaultValues();
+    }
+
+    function setDefaultValues(){
+        playerSymbols.displaySymbols();
+        winCounter.initialize();
+        msgPanelObject.defaultMessage();
+    }
+
+    function setGamePlayers(){
+        player1.setPlayerDetails("Player 1","X");
+        player2.setPlayerDetails("Player 2","O");
+    }
+
+    return {resetGamePlayers};
+})();
 
 const playerNameFields = (function(){
     const player1Name = document.getElementById("name-field1");
@@ -373,27 +414,7 @@ const playerSymbols = (function(){
     return {displaySymbols};
 })();
 
-const initializePlayers = (function(){
-    const nameForm = document.querySelector("form");
-    
-    function resetGamePlayers(){
-        nameForm.reset();
-        setGamePlayers();
-        playerSymbols.displaySymbols();
-        winCounter.initialize();
-        messageControl.defaultMessage();
-        gameBoard.updatePresentPlayer(player1,player1.getPlayerSymbol());
-    }
-
-    function setGamePlayers(){
-        player1.setPlayerDetails("Player 1","X");
-        player2.setPlayerDetails("Player 2","O");
-    }
-
-    return {resetGamePlayers};
-})();
-
-const swapSymbols = (function(){
+const swapButtonObject = (function(){
     const swapButton = document.getElementById("swap-button");
     
     swapButton.addEventListener("click",swapButtonFunction);
@@ -403,12 +424,12 @@ const swapSymbols = (function(){
         setTimeout(function(){
             swapButton.classList.remove("clicked");
         },200)
-        swapSymbols();
+        swapButtonObject();
         playerSymbols.displaySymbols();
         flowControl.switchPlayer();
     }
 
-    function swapSymbols(){
+    function swapButtonObject(){
         let temp = player1.getPlayerSymbol();
         player1.updatePlayerSymbol(player2.getPlayerSymbol());
         player2.updatePlayerSymbol(temp);
@@ -448,81 +469,97 @@ const winCounter = (function(){
             displayWin};
 })();
 
-const start = (function(){
+const startButtonObject = (function(){
     const startButton = document.getElementById("start-button");
     
     startButton.addEventListener("click",startButtonFunctionality);
 
     function startButtonFunctionality(){
-        startButton.removeEventListener("click",startButtonFunctionality);
-        start.lock();
+        startButtonObject.lock();
         playerNameFields.lock();
-        swapSymbols.lock();
+        swapButtonObject.lock();
         displayController.unlock();
 
+        gameBoard.reset();
+        gameWin.reset();
+
         playerNameFields.setPlayerDetails();
-        messageControl.removeDefaultMessage();
-        messageControl.playerMessage(gameBoard.getPresentPlayer());
+        msgPanelObject.removeMessage();
+        msgPanelObject.playerMessage(gameBoard.getPresentPlayer());
     }
 
     function lock(){
         startButton.disabled = true;
+        startButton.removeEventListener("click",startButtonFunctionality);
     }
 
     function unlock(){
         startButton.disabled = false;
+        startButton.addEventListener("click",startButtonFunctionality);
+    }
+
+    function newGame(){
+        startButton.textContent = "Restart";
     }
     
     return {lock,
-            unlock};
+            unlock,
+            newGame};
 })();
 
-const messageControl = (function(){
+const msgPanelObject = (function(){
     const messagePanel = document.querySelector(".message-layer");
     let message;
 
     function defaultMessage(){
-        let k = 1;
-        messagePanel.textContent = "Enter Player Names";
-        message = setInterval(function(){
-            if(k%2 == 0)
-                messagePanel.textContent = "Enter Player Names";
-            else
-                messagePanel.textContent = "Click Start to Begin!";
-            k++
-        },2000);
+        alternateMessage("Enter Player Names",
+                         "Click Start to Begin!")
     }
 
-    function removeDefaultMessage(){
+    function alternateMessage(message1,message2){
+        let k = 1;
+        messagePanel.textContent = message1;
+        message = setInterval(function(){
+            if(k%2 == 0)
+                messagePanel.textContent = message1;
+            else
+                messagePanel.textContent = message2;
+            k++;
+        },2000)
+    }
+
+    function newGameMessage(result){
+        alternateMessage(result,
+                         "Click Restart to Begin Next Game");
+    }
+
+    function removeMessage(){
         clearInterval(message);
         messagePanel.textContent = "";
     }
 
     function playerMessage(player){
-        messagePanel.textContent = "Present Player: " + player.getPlayerName() + " - " + player.getPlayerSymbol();
+        messagePanel.textContent = "Present Player: " + player.getPlayerName();
     }
 
     function winMessage(){
-        messagePanel.textContent = gameBoard.getPresentPlayer().getPlayerName() + " Wins!";
+        return gameBoard.getPresentPlayer().getPlayerName() + " Wins!";
     }
 
-    function tie(){
-        messagePanel.textContent = "It's a tie!";
+    function tieMessage(){
+        return "It's a tie!";
     }
     
     return {defaultMessage,
-            removeDefaultMessage,
+            removeMessage,
             playerMessage,
             winMessage,
-            tie};
+            tieMessage,
+            newGameMessage};
 
 })();
 
-const player1 = player();
-const player2 = player();
-
-
 window.onload = () =>{
-    initializePlayers.resetGamePlayers();
+    initializePage.resetGamePlayers();
 };
 
