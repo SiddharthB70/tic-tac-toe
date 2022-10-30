@@ -1,7 +1,7 @@
 const x = 0, y = 1; //Used to access the x and y values of a cell in the board
 
 const player = ()=>{
-    let playerName,playerSymbol,playerWins = 0;
+    let playerName,playerSymbol,playerWins = 0, isComputer = false;
 
     function setPlayerDetails(name,symbol){
         playerName = name;
@@ -36,6 +36,14 @@ const player = ()=>{
         return playerWins;
     }
 
+    function toggleComputer(){
+        isComputer = !isComputer;
+    }
+
+    function checkComputer(){
+        return isComputer;
+    }
+
     return {setPlayerDetails,
             getPlayerName,
             getPlayerSymbol,
@@ -43,12 +51,14 @@ const player = ()=>{
             updatePlayerSymbol,
             increaseWin,
             returnWins,
-            initializeWin
+            initializeWin,
+            toggleComputer,
+            checkComputer
             };
 };
 
-const player1 = player();
-const player2 = player();
+let player1 = player();
+let player2 = player();
 
 /*
 gameBoard is a module object that represents tic-tac-toe in logical manner using a 2D array.
@@ -88,6 +98,12 @@ const gameBoard = (function(){
             return true;
     }
 
+    function positionFilled(coordinate){
+        if(board[coordinate[x]][coordinate[y]]=="")
+            return false;
+        return true;
+    }
+
     function reset(){
         board =[["","",""],
                 ["","",""],
@@ -105,7 +121,8 @@ const gameBoard = (function(){
             updatePresentPlayer,
             getCellValue,
             boardFilled,
-            reset};
+            reset,
+            positionFilled};
 })();
 
 /*
@@ -123,14 +140,8 @@ const displayController = (function(){
     }
 
     function blockCell(cell){
-        cell.removeEventListener("click",selectCell);
+        cell.removeEventListener("click",clickCell);
         cell.classList.remove("hover");
-    }
-
-    function unlock(){
-        boardCells.forEach((cell)=>{
-            unblockCell(cell);
-        })
     }
 
     function reset(){
@@ -140,14 +151,17 @@ const displayController = (function(){
     }
 
     function unblockCell(cell){
-        cell.addEventListener("click",selectCell);
+        cell.addEventListener("click",clickCell);
             cell.classList.add("hover");
             cell.classList.remove("win");
             cell.textContent = "";
     }
 
-    function selectCell(e){
-        const cell = e.target;
+    function clickCell(e){
+        selectCell(e.target)
+    }
+
+    function selectCell(cell){
         const cellCoordinate = returnCoordinate(cell);
 
         //To update Displayed cell
@@ -206,7 +220,9 @@ const displayController = (function(){
 
     return {displayWin,
             lock,
-            reset};
+            reset,
+            selectCell,
+            returnCell};
 })();
 
 /*
@@ -316,6 +332,8 @@ const flowControl = (function(){
         boardFilled = gameBoard.boardFilled();
         if(!win && !boardFilled){
             switchPlayer();
+            if((gameBoard.getPresentPlayer()).checkComputer())
+                computerAI.generateCoordinate();
             msgPanelObject.playerMessage(gameBoard.getPresentPlayer());
             return;
         }
@@ -352,17 +370,22 @@ const initializePage = (function(){
     const nameForm = document.querySelector("form");
     
     function resetGamePlayers(){
-        nameForm.reset();
+        nameForm.reset();            
         gameBoard.reset();
         gameWin.reset();
         displayController.reset();
         msgPanelObject.removeMessage();
+        if(player2.checkComputer()){
+            choosePlayer.changePlayer();
+        }
+        startButtonObject.reset();
 
         resetButtonObject.lock();
+        displayController.lock();
         startButtonObject.unlock();
         playerNameFields.unlock();
         swapButtonObject.unlock();
-        displayController.lock();
+        choosePlayer.unlock();
         
         setGamePlayers();
         setDefaultValues();
@@ -404,6 +427,16 @@ const playerNameFields = (function(){
         player2Name.disabled = false;
     }
 
+    function computerLock(){
+        player2Name.disabled = true;
+        player2Name.value = "Computer";
+    }
+
+    function playerUnlock(){
+        player2Name.disabled = false;
+        player2Name.value = "Player 2"
+    }
+
     function setPlayerDetails(){
         player1.updatePlayerName(player1Name.value);
         player2.updatePlayerName(player2Name.value);
@@ -411,7 +444,9 @@ const playerNameFields = (function(){
 
     return {lock,
             unlock,
-            setPlayerDetails};
+            setPlayerDetails,
+            computerLock,
+            playerUnlock};
 
 })();
 
@@ -491,15 +526,19 @@ const startButtonObject = (function(){
         startButtonObject.lock();
         playerNameFields.lock();
         swapButtonObject.lock();
-        displayController.reset();
+        choosePlayer.lock();
         resetButtonObject.unlock();
 
+        displayController.reset();
         gameBoard.reset();
         gameWin.reset();
 
         playerNameFields.setPlayerDetails();
         msgPanelObject.removeMessage();
         msgPanelObject.playerMessage(gameBoard.getPresentPlayer());
+
+        if((gameBoard.getPresentPlayer()).checkComputer())
+                computerAI.generateCoordinate();
     }
 
     function lock(){
@@ -515,10 +554,15 @@ const startButtonObject = (function(){
     function newGame(){
         startButton.textContent = "Restart";
     }
+
+    function reset(){
+        startButton.textContent = "Start";
+    }
     
     return {lock,
             unlock,
-            newGame};
+            newGame,
+            reset};
 })();
 
 const resetButtonObject = (function(){
@@ -594,7 +638,55 @@ const msgPanelObject = (function(){
 
 })();
 
+const choosePlayer = (function(){
+    const selectField = document.getElementById("select");
+
+    selectField.addEventListener("click",changePlayer);
+
+    function changePlayer(){
+        if(selectField.getAttribute("data-player") == "Player"){
+            selectField.setAttribute("data-player","Computer");
+            selectField.textContent = "Computer";
+            playerNameFields.computerLock();
+            player2.toggleComputer();
+        }
+        else{
+            playerNameFields.playerUnlock();
+            selectField.setAttribute("data-player","Player");
+            selectField.textContent = "Player";
+            player2.toggleComputer();
+        }
+    }
+
+    function lock(){
+        selectField.removeEventListener("click",changePlayer);
+        selectField.classList.add("disabled");
+    }
+
+    function unlock(){
+        selectField.addEventListener("click",changePlayer);
+        selectField.classList.remove("disabled");
+    }
+
+    return {changePlayer,
+            lock,
+            unlock};
+})();
+
+const computerAI = (function(){
+    let x,y,cell;
+    function generateCoordinate(){
+        do{
+            x = Math.floor(Math.random()*3);
+            y = Math.floor(Math.random()*3);
+        }while(gameBoard.positionFilled([x,y]));
+        cell  = displayController.returnCell([x,y]);
+        displayController.selectCell(cell);
+    }
+    
+    return {generateCoordinate};
+})();
+
 window.onload = () =>{
     initializePage.resetGamePlayers();
 };
-

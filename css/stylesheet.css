@@ -38,7 +38,7 @@ body{
     /* margin-bottom: 20px; */
 }
 
-.player-select-layer,
+.player-layer,
 .name-layer,
 .symbol-layer,
 .win-layer{
@@ -48,11 +48,11 @@ body{
     font-size: 30px;
 }
 
-.player-select-layer>*,
+.player-layer>*,
 .name-layer>*,
 .symbol-layer>*,
 .win-layer>*{
-    width: 150px;
+    width: 200px;
     text-align: center;
 }
 
@@ -231,5 +231,23 @@ td.hover:hover{
 
 *:disabled:hover{
     background: initial !important;
+}
+
+.player-layer>#select{
+    position: relative;
+    left: -20px;
+    cursor: pointer;
+}
+
+.player-layer>#select::after{
+    content: "🢓";
+    position: absolute;
+    font-size: 40px;
+    top: 10px;
+    right: 0px;
+}
+
+.player-layer>#select.disabled{
+    cursor: text;
 }
 
