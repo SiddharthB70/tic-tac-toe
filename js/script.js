@@ -115,6 +115,12 @@ const gameBoard = (function(){
         cellsFilled = 0;
     }
 
+    function returnBoard(){
+        return board;
+    }
+
+
+
     return {updateGameBoard,
             getPresentSymbol,
             getPresentPlayer,
@@ -122,7 +128,8 @@ const gameBoard = (function(){
             getCellValue,
             boardFilled,
             reset,
-            positionFilled};
+            positionFilled,
+            returnBoard};
 })();
 
 /*
@@ -673,17 +680,151 @@ const choosePlayer = (function(){
             unlock};
 })();
 
+// const computerAI = (function(){
+//     let x,y,cell;
+//     function generateCoordinate(){
+//         do{
+//             x = Math.floor(Math.random()*3);
+//             y = Math.floor(Math.random()*3);
+//         }while(gameBoard.positionFilled([x,y]));
+//         cell  = displayController.returnCell([x,y]);
+//         displayController.selectCell(cell);
+//     }
+    
+//     return {generateCoordinate};
+// })();
+
 const computerAI = (function(){
-    let x,y,cell;
     function generateCoordinate(){
-        do{
-            x = Math.floor(Math.random()*3);
-            y = Math.floor(Math.random()*3);
-        }while(gameBoard.positionFilled([x,y]));
-        cell  = displayController.returnCell([x,y]);
+        bestCell = minmax(gameBoard.returnBoard(),player2);
+        let cell =displayController.returnCell(bestCell.coordinate);
         displayController.selectCell(cell);
     }
+
+    function minmax(board,player){
+        let emptyCells = getEmptyCells(board);
+        if(winning(board,player1.getPlayerSymbol()))
+            return {score:-10};
+        else if(winning(board,player2.getPlayerSymbol()))
+            return {score: 10};
+        else if(emptyCells.length===0)
+            return {score:0};
+
+        let moves = [],x,y;
+
+        for(let i=0;i<emptyCells.length;i++){
+            let move = {};
+            move.coordinate = emptyCells[i];
+            [x,y] = emptyCells[i]
+            board[x][y] = player.getPlayerSymbol();
+
+            if(player==player2){
+                let result = minmax(board,player1)
+                move.score = result.score;
+            }
+            else{
+                let result = minmax(board,player2)
+                move.score = result.score;
+            }
+
+            board[x][y] = "";
+
+            moves.push(move);
+        }
+
+        let bestMove;
+        if(player==player2){
+            let bestScore = -10000;
+            for(let i=0;i<moves.length;i++){
+                if(moves[i].score>bestScore){
+                    bestScore = moves[i].score;
+                    bestMove = i;
+                }
+            }
+        }
+        else{
+            let bestScore = 10000;
+            for(let i=0;i<moves.length;i++){
+                if(moves[i].score<bestScore){
+                    bestScore = moves[i].score;
+                    bestMove = i
+                }
+            }
+        }
+        return moves[bestMove];
+    }
+
+    function getEmptyCells(board){
+        let emptyCells = [];
+        for(let i=0;i<=2;i++){
+            for(let j=0;j<=2;j++){
+                if(board[i][j]=="")
+                    emptyCells.push([i,j]);
+            }     
+        }
+        return emptyCells;
+    }
     
+    function winning(board,symbol){
+        let cWin = checkColumn(board,symbol),
+            rWin = checkRow(board,symbol),
+            dWin = (checkLeftDiagonal(board,symbol)||checkRightDiagonal(board,symbol));
+            return cWin||rWin||dWin;
+    }
+
+    function checkRow(board,symbol){
+        let count;
+        for(let i=0;i<=2;i++){
+            count = 0
+            for(let j=0;j<=2;j++){
+                if(board[i][j]==symbol)
+                    count++;
+            }
+            if(count == 3)
+                return true;
+        }
+        return false;
+    }
+
+    function checkColumn(board,symbol){
+        let count;
+        for(let i=0;i<=2;i++){
+            count = 0;
+            for(let j=0;j<=2;j++){
+                if(board[j][i]==symbol)
+                    count++;
+            }
+            if(count == 3)
+                return true;
+        }
+        return false;
+    }
+
+    function checkLeftDiagonal(board,symbol){
+        let count = 0;
+        for(let i=0,j=0;i<=2;i++,j++){
+            if(board[i][j]==symbol)
+                count++;
+        }
+        if(count == 3)
+            return true;
+        else
+            return false;
+    }
+
+    function checkRightDiagonal(board,symbol){
+        let count = 0;
+        for(let i=0,j=2;i<=2;i++,j--){
+            if(board[i][j]==symbol)
+                count++;
+        }
+        if(count == 3)
+            return true;
+        return false;
+    }
+
+
+
     return {generateCoordinate};
 })();
 
