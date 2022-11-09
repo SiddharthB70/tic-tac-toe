@@ -352,6 +352,7 @@ const flowControl = (function(){
         else{
             msgPanelObject.newGameMessage(msgPanelObject.tieMessage());
         }
+        levelSelectObject.lock();
         startButtonObject.unlock();
         startButtonObject.newGame();
     }
@@ -534,6 +535,7 @@ const startButtonObject = (function(){
         playerNameFields.lock();
         swapButtonObject.lock();
         choosePlayer.lock();
+        levelSelectObject.lock();
         resetButtonObject.unlock();
 
         displayController.reset();
@@ -543,9 +545,11 @@ const startButtonObject = (function(){
         playerNameFields.setPlayerDetails();
         msgPanelObject.removeMessage();
         msgPanelObject.playerMessage(gameBoard.getPresentPlayer());
+        levelSelectObject.getLevel();
 
-        if((gameBoard.getPresentPlayer()).checkComputer())
-                computerAI.generateCoordinate();
+        if((gameBoard.getPresentPlayer()).checkComputer()){
+            computerAI.generateCoordinate();
+        }
     }
 
     function lock(){
@@ -656,12 +660,14 @@ const choosePlayer = (function(){
             selectField.textContent = "Computer";
             playerNameFields.computerLock();
             player2.toggleComputer();
+            levelSelectObject.unlock();
         }
         else{
             playerNameFields.playerUnlock();
             selectField.setAttribute("data-player","Player");
             selectField.textContent = "Player";
             player2.toggleComputer();
+            levelSelectObject.lock();
         }
     }
 
@@ -680,25 +686,66 @@ const choosePlayer = (function(){
             unlock};
 })();
 
-// const computerAI = (function(){
-//     let x,y,cell;
-//     function generateCoordinate(){
-//         do{
-//             x = Math.floor(Math.random()*3);
-//             y = Math.floor(Math.random()*3);
-//         }while(gameBoard.positionFilled([x,y]));
-//         cell  = displayController.returnCell([x,y]);
-//         displayController.selectCell(cell);
-//     }
-    
-//     return {generateCoordinate};
-// })();
+const levelSelectObject = (function(){
+    const select = document.getElementById("level");
+
+    function getLevel(){
+        let level = select.value;
+        console.log(level);
+        computerAI.setLevel(level);
+    }
+
+    function lock(){
+        select.disabled = true;
+    }
+
+    function unlock(){
+        select.disabled = false;
+    }
+
+    return {lock,
+            unlock,
+            getLevel};
+})();
 
 const computerAI = (function(){
+    let level;
     function generateCoordinate(){
-        bestCell = minmax(gameBoard.returnBoard(),player2);
-        let cell =displayController.returnCell(bestCell.coordinate);
+        let coordinate;
+        switch(level){
+            case "Easy": coordinate = easyAI.returnCoordinate();
+                         break;
+            case "Impossible": coordinate = impossibleAI.returnCoordinate();
+                         break;
+        }
+        cell  = displayController.returnCell(coordinate);
         displayController.selectCell(cell);
+    }
+
+    function setLevel(lev){
+        level = lev;
+    }
+    return {generateCoordinate,
+            setLevel};
+})();
+
+const easyAI = (function(){
+    let x,y;
+    function returnCoordinate(){
+        do{
+            x = Math.floor(Math.random()*3);
+            y = Math.floor(Math.random()*3);
+        }while(gameBoard.positionFilled([x,y]));
+        return ([x,y]);
+    }
+    
+    return {returnCoordinate};
+})();
+
+const impossibleAI = (function(){
+    function returnCoordinate(){
+        bestCell = minmax(gameBoard.returnBoard(),player2);
+        return bestCell.coordinate;
     }
 
     function minmax(board,player){
@@ -823,9 +870,7 @@ const computerAI = (function(){
         return false;
     }
 
-
-
-    return {generateCoordinate};
+    return {returnCoordinate};
 })();
 
 window.onload = () =>{
