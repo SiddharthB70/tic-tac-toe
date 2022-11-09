@@ -387,6 +387,7 @@ const initializePage = (function(){
             choosePlayer.changePlayer();
         }
         startButtonObject.reset();
+        levelSelectObject.reset();
 
         resetButtonObject.lock();
         displayController.lock();
@@ -691,8 +692,12 @@ const levelSelectObject = (function(){
 
     function getLevel(){
         let level = select.value;
-        console.log(level);
         computerAI.setLevel(level);
+    }
+
+    function reset(){
+        computerAI.setLevel("Easy");
+        select.value = "Easy";
     }
 
     function lock(){
@@ -705,7 +710,8 @@ const levelSelectObject = (function(){
 
     return {lock,
             unlock,
-            getLevel};
+            getLevel,
+            reset};
 })();
 
 const computerAI = (function(){
@@ -714,6 +720,8 @@ const computerAI = (function(){
         let coordinate;
         switch(level){
             case "Easy": coordinate = easyAI.returnCoordinate();
+                         break;
+            case "Hard": coordinate = hardAI.returnCoordinate();
                          break;
             case "Impossible": coordinate = impossibleAI.returnCoordinate();
                          break;
@@ -739,6 +747,18 @@ const easyAI = (function(){
         return ([x,y]);
     }
     
+    return {returnCoordinate};
+})();
+
+const hardAI = (function(){
+    const prob = 40;
+    function returnCoordinate(){
+        if(Math.random()*100 <= prob)
+            return impossibleAI.returnCoordinate();
+        else
+            return easyAI.returnCoordinate();
+    }
+
     return {returnCoordinate};
 })();
 
