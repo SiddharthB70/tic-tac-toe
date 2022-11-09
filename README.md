@@ -9,5 +9,7 @@ Languages used in this project
 - HTML
 - CSS
 
+## Instructions to run project
+This project is hosted on GitHub pages
 
 
