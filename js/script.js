@@ -354,7 +354,7 @@ const flowControl = (function(){
         else{
             msgPanelObject.newGameMessage(msgPanelObject.tieMessage());
         }
-        levelSelectObject.lock();
+        levelSelectObject.unlock();
         startButtonObject.unlock();
         startButtonObject.newGame();
     }
