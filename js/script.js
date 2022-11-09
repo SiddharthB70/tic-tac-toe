@@ -337,11 +337,13 @@ const flowControl = (function(){
     function moveControl(cellCoordinate){
         win = gameWin.checkWin(cellCoordinate);
         boardFilled = gameBoard.boardFilled();
+        msgPanelObject.removeMessage();
         if(!win && !boardFilled){
             switchPlayer();
             if((gameBoard.getPresentPlayer()).checkComputer())
                 computerAI.generateCoordinate();
-            msgPanelObject.playerMessage(gameBoard.getPresentPlayer());
+            else
+                msgPanelObject.playerMessage(gameBoard.getPresentPlayer());
             return;
         }
         else if(win){
