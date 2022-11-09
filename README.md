@@ -10,6 +10,7 @@ Languages used in this project
 - CSS
 
 ## Instructions to run project
-This project is hosted on GitHub pages
+This project is hosted on GitHub pages. The only requirement to run this project is a stable internet connection and a web browser.  
+Visit https://siddharthb70.github.io/tic-tac-toe/ to view the project.
 
 
