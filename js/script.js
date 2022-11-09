@@ -345,7 +345,7 @@ const flowControl = (function(){
             return;
         }
         else if(win){
-            setGameWin();    
+            setGameWin();   
             msgPanelObject.newGameMessage(msgPanelObject.winMessage());
             gameBoard.getPresentPlayer().increaseWin();
         }

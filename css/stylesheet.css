@@ -107,12 +107,12 @@ body{
     justify-content: center;
     height: 50px;
     gap: 20px;
+    position: relative;
 }
 
 .button-layer>*{
     flex: 0 0 auto;
-    width: max-content;
-    padding: 0px 10px;
+    width: 150px;
     appearance: none;
     border: 5px solid var(--dark-pale);
     background-color: inherit;
@@ -121,11 +121,16 @@ body{
     align-items: center;
     justify-content: center;
     font-family: inherit;
-    cursor: pointer
+    cursor: pointer;
+    padding: 0px 10px;
 }
 
 .button-layer>*:hover{
     background-color: var(--dark-pale);
+}
+
+.button-layer>select{
+    text-align: center;
 }
 
 
@@ -233,13 +238,14 @@ td.hover:hover{
     background: initial !important;
 }
 
-.player-layer>#select{
+.player-layer>#select,
+.select-arrow{
     position: relative;
-    left: -20px;
     cursor: pointer;
 }
 
-.player-layer>#select::after{
+.player-layer>#select::after,
+.select-arrow::after{
     content: "🢓";
     position: absolute;
     font-size: 40px;
@@ -247,7 +253,22 @@ td.hover:hover{
     right: 0px;
 }
 
-.player-layer>#select.disabled{
+.player-layer>#select.disabled,
+.select-arrow.disabled{
     cursor: text;
 }
+
+.select-arrow{
+    width: 0px;
+    position: absolute;
+    border: none;
+    right: 30px;
+    top: 4px;
+}
+
+.button-layer>select{
+    width: 220px !important;
+}
+
+
 
