@@ -753,7 +753,7 @@ const easyAI = (function(){
 })();
 
 const hardAI = (function(){
-    const prob = 40;
+    const prob = 65;
     function returnCoordinate(){
         if(Math.random()*100 <= prob)
             return impossibleAI.returnCoordinate();
@@ -772,6 +772,9 @@ const impossibleAI = (function(){
 
     function minmax(board,player){
         let emptyCells = getEmptyCells(board);
+        if(emptyCells.length == 9){
+            return {coordinate: easyAI.returnCoordinate()};
+        }
         if(winning(board,player1.getPlayerSymbol()))
             return {score:-10};
         else if(winning(board,player2.getPlayerSymbol()))
